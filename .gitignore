@@ -1,0 +1,40 @@
+# Dependencias
+node_modules/
+/pnpm-lock.yaml
+
+# Variables de entorno (¡CRÍTICO PARA SEGURIDAD!)
+.env
+.env.test
+.env.production
+
+# Archivos de Logs (Winston u otros)
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Archivos del Sistema Operativo
+.DS_Store
+Thumbs.db
+
+# Carpetas de Editores (VS Code, IntelliJ, etc)
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Archivos de pruebas y cobertura
+coverage/
+.nyc_output/
+
+# Archivos locales de datos (Opcional: descomentá si querés ignorar los JSON de Postman)
+# equipos.json
+# estadios.json
+
+# Cursor IDE
+.cursor/
