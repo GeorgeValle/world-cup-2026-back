@@ -3,6 +3,7 @@ dotenv.config();
 
 let TeamDAO;
 let StadiumDAO;
+let MatchDAO;
 
 const persistence = process.env.PERSISTENCE || 'MONGO';
 
@@ -11,9 +12,11 @@ switch (persistence) {
         // Importación dinámica: solo cargamos estos archivos si usamos Mongo
         const { default: TeamMongoDAO } = await import('./mongo/TeamDAO.js');
         const { default: StadiumMongoDAO } = await import('./mongo/StadiumDAO.js');
+        const { default: MatchMongoDAO } = await import('./mongo/MatchDAO.js');
         // Instanciamos la clase
         TeamDAO = new TeamMongoDAO();
         StadiumDAO = new StadiumMongoDAO();
+        MatchDAO = new MatchMongoDAO();
         break;
         
     case 'MEMORY':
@@ -24,4 +27,4 @@ switch (persistence) {
         throw new Error('Persistence method not supported');
 }
 
-export { TeamDAO, StadiumDAO };
+export { TeamDAO, StadiumDAO, MatchDAO };
