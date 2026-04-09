@@ -13,6 +13,14 @@ const createMatchSchema = z.object({
     stage: z.string().min(3, { error: "La fase es obligatoria" })
 });
 
+const updateMatchSchema = z.object({
+    status: z.enum(['PENDING', 'PLAYING', 'FINISHED'], { error: "Estado inválido" }).optional(),
+    homeScore: z.number().int().min(0, { error: "Los goles no pueden ser negativos" }).optional(),
+    awayScore: z.number().int().min(0, { error: "Los goles no pueden ser negativos" }).optional(),
+    date: z.iso.datetime({ error: "La fecha debe ser ISO 8601" }).optional(),
+    stadium: objectIdSchema.optional()
+});
+
 export const getAllMatches = async (req, res) => {
     try {
         const matches = await MatchService.getMatches();
@@ -37,6 +45,21 @@ export const createMatch = async (req, res) => {
         const validatedData = createMatchSchema.parse(req.body);
         const newMatch = await MatchService.createMatch(validatedData);
         res.status(201).json({ status: 'success', data: newMatch });
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ status: 'error', errors: error.errors });
+        }
+        res.status(400).json({ status: 'error', message: error.message });
+    }
+};
+
+export const updateMatch = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const validatedData = updateMatchSchema.parse(req.body);
+        
+        const updatedMatch = await MatchService.updateMatch(id, validatedData);
+        res.status(200).json({ status: 'success', data: updatedMatch });
     } catch (error) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({ status: 'error', errors: error.errors });

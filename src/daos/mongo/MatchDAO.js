@@ -27,6 +27,11 @@ class MatchDAO extends MongoDAO {
         // Devolvemos el documento RECIÉN creado, pero poblado
         return await newMatch.populate(['homeTeam', 'awayTeam', 'stadium']);
     }
+
+    async update(id, updateData) {
+        return await this.model.findByIdAndUpdate(id, updateData, { new: true })
+            .populate(['homeTeam', 'awayTeam', 'stadium']);
+    }
 }
 
 export default MatchDAO;

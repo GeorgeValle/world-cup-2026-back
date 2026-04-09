@@ -40,3 +40,9 @@ coverage/
 .cursor/
 
 .gitignore
+
+# scripts
+cargar_partidos.js
+
+# json files
+fixture_real.json

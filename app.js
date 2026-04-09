@@ -4,6 +4,7 @@ import cors from 'cors';
 import connectDB from './src/config/db.js';
 import teamRouter from './src/routes/TeamRouter.js';
 import stadiumRouter from './src/routes/StadiumRouter.js';
+import matchRouter from './src/routes/MatchRouter.js';
 
 // 1. Cargar variables de entorno SIEMPRE al principio
 dotenv.config();
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 // 5. Rutas (Acá vamos a ir montando los routers después)
 app.use('/api/teams', teamRouter);
 app.use('/api/stadiums', stadiumRouter);
+app.use('/api/matches', matchRouter);
 app.get('/', (req, res) => {
     res.json({ message: 'API Fixture Mundial 2026 funcionando 🏆' });
 });

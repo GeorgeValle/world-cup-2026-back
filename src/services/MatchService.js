@@ -16,3 +16,12 @@ export const createMatch = async (matchData) => {
     }
     return await MatchDAO.create(matchData);
 };
+
+export const updateMatch = async (id, updateData) => {
+    // 1. Verificamos que el partido exista
+    const match = await MatchDAO.getById(id);
+    if (!match) throw new Error('Partido no encontrado para actualizar');
+
+    // 2. Lo actualizamos en la DB
+    return await MatchDAO.update(id, updateData);
+};
