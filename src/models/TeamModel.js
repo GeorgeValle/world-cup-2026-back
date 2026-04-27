@@ -23,6 +23,18 @@ const teamSchema = new Schema({
         required: true,
         uppercase: true, // Ej: 'CONMEBOL', 'UEFA', 'CONCACAF'
         trim: true
+    },
+    position: {
+        type: Number,
+        default: null, // Por defecto no tiene posición hasta que termine el grupo
+        min: 1,
+        max: 4
+    },
+    qualifiedTo: {
+        type: String,
+        default: null, // Ejemplo: 'ROUND_OF_32', 'ELIMINATED'
+        enum: ['16AVOS','OCTAVOS','CUARTOS','SEMIFINAL','3RO','FINAL','ELIMINADO'],
+        uppercase: true
     }
 }, {
     timestamps: true

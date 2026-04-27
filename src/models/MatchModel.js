@@ -38,6 +38,15 @@ const matchSchema = new Schema({
     awayScore: {
         type: Number,
         default: null
+    },
+    // NUEVOS CAMPOS PARA ELIMINATORIAS
+    homePenaltyScore: {
+        type: Number,
+        default: null
+    },
+    awayPenaltyScore: {
+        type: Number,
+        default: null
     }
 }, {
     timestamps: true

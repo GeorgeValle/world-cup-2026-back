@@ -18,6 +18,11 @@ const updateMatchSchema = z.object({
     homeScore: z.number().int().min(0, { error: "Los goles no pueden ser negativos" }).optional(),
     awayScore: z.number().int().min(0, { error: "Los goles no pueden ser negativos" }).optional(),
     date: z.iso.datetime({ error: "La fecha debe ser ISO 8601" }).optional(),
+    stadium: objectIdSchema.optional(),
+    // NUEVAS VALIDACIONES
+    homePenaltyScore: z.number().int().min(0).optional(),
+    awayPenaltyScore: z.number().int().min(0).optional(),
+    date: z.iso.datetime({ error: "La fecha debe ser ISO 8601" }).optional(),
     stadium: objectIdSchema.optional()
 });
 
@@ -65,5 +70,19 @@ export const updateMatch = async (req, res) => {
             return res.status(400).json({ status: 'error', errors: error.errors });
         }
         res.status(400).json({ status: 'error', message: error.message });
+    }
+};
+
+export const getDailySchedule = async (req, res) => {
+    try {
+        // Capturamos el query param opcional (ej: /api/matches/schedule/daily?date=2026-06-11)
+        const { date } = req.query; 
+        
+        const schedule = await MatchService.getDailySchedule(date);
+        
+        res.status(200).json({ status: 'success', data: schedule });
+    } catch (error) {
+        console.error("❌ Error en el catch:", error); //
+        res.status(500).json({ status: 'error', message: error.message });
     }
 };

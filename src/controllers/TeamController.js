@@ -9,6 +9,25 @@ const createTeamSchema = z.object({
     confederation: z.string().min(3, { error: "La confederación debe tener al menos 3 caracteres" })
 });
 
+const updateTeamSchema = z.object({
+    name: z.string().min(2).optional(),
+    shieldUrl: z.string().url().optional(),
+    group: z.string().length(1).optional(),
+    confederation: z.string().min(2).optional(),
+    
+    // NUEVOS CAMPOS
+    position: z.number()
+        .int()
+        .min(1, { error: "La posición mínima es 1" })
+        .max(4, { error: "La posición máxima es 4" })
+        .nullable() // Permite que el valor sea null
+        .optional(), // Permite que el campo ni siquiera se envíe en el Body
+        
+    qualifiedTo: z.string()
+        .nullable()
+        .optional()
+});
+
 export const getAllTeams = async (req, res) => {
     try {
         const teams = await TeamService.getTeams();
@@ -52,6 +71,29 @@ export const createTeam = async (req, res) => {
         if (error instanceof z.ZodError) {
             return res.status(400).json({ status: 'error', errors: error.errors });
         }
+        res.status(400).json({ status: 'error', message: error.message });
+    }
+};
+
+export const updateTeam = async (req, res) => {
+    try {
+        // 1. Obtenemos el ID de la URL
+        const { id } = req.params;
+
+        // 2. Pasamos el body por nuestro nuevo esquema Zod. 
+        // Si hay un error de validación, Zod cortará la ejecución aquí y saltará al catch.
+        const validatedData = updateTeamSchema.parse(req.body);
+
+        // 3. Llamamos al servicio para que actualice la base de datos
+        const updatedTeam = await TeamService.updateTeam(id, validatedData);
+        
+        res.status(200).json({ status: 'success', data: updatedTeam });
+    } catch (error) {
+        // Atajamos los errores de validación de Zod
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ status: 'error', errors: error.errors });
+        }
+        // Atajamos errores de base de datos (ej: equipo no encontrado)
         res.status(400).json({ status: 'error', message: error.message });
     }
 };

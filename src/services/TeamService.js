@@ -26,3 +26,14 @@ export const createTeam = async (teamData) => {
 
     return await TeamDAO.create(teamData);
 };
+
+export const updateTeam = async (id, updateData) => {
+    // Verificamos que el equipo exista antes de actualizar
+    const team = await TeamDAO.getById(id);
+    if (!team) throw new Error('Equipo no encontrado para actualizar');
+
+    // Usamos el método update genérico de tu MongoDAO
+    return await TeamDAO.update(id, updateData);
+
+    
+};
