@@ -11,6 +11,8 @@ class TeamDAO extends MongoDAO {
         // Usamos una expresión regular para que no sea sensible a mayúsculas/minúsculas
         return await this.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
     }
+
+    
 }
 
 export default TeamDAO;
