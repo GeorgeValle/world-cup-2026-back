@@ -33,7 +33,15 @@ const teamSchema = new Schema({
     qualifiedTo: {
         type: String,
         default: null, // Ejemplo: 'ROUND_OF_32', 'ELIMINATED'
-        enum: ['16AVOS','OCTAVOS','CUARTOS','SEMIFINAL','3RO','FINAL','ELIMINADO'],
+        enum: [
+            'ROUND_OF_32',
+            'ROUND_OF_16',
+            'QUARTER_FINALS',
+            'SEMI_FINALS',
+            'THIRD_PLACE_MATCH',
+            'FINAL',
+            'ELIMINATED'
+          ],
         uppercase: true
     }
 }, {
