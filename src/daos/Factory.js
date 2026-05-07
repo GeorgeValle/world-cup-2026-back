@@ -4,7 +4,7 @@ dotenv.config();
 let TeamDAO;
 let StadiumDAO;
 let MatchDAO;
-
+let UserDAO;
 const persistence = process.env.PERSISTENCE || 'MONGO';
 
 switch (persistence) {
@@ -13,10 +13,12 @@ switch (persistence) {
         const { default: TeamMongoDAO } = await import('./mongo/TeamDAO.js');
         const { default: StadiumMongoDAO } = await import('./mongo/StadiumDAO.js');
         const { default: MatchMongoDAO } = await import('./mongo/MatchDAO.js');
+        const { default: UserMongoDAO } = await import('./mongo/UserMongo.js');
         // Instanciamos la clase
         TeamDAO = new TeamMongoDAO();
         StadiumDAO = new StadiumMongoDAO();
         MatchDAO = new MatchMongoDAO();
+        UserDAO = new UserMongoDAO();
         break;
         
     case 'MEMORY':
@@ -27,4 +29,4 @@ switch (persistence) {
         throw new Error('Persistence method not supported');
 }
 
-export { TeamDAO, StadiumDAO, MatchDAO };
+export { TeamDAO, StadiumDAO, MatchDAO, UserDAO };
