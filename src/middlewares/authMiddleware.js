@@ -2,26 +2,48 @@ import jwt from 'jsonwebtoken';
 
 export const verifyAdmin = (req, res, next) => {
     try {
-        // 1. Sacar el token del header (formato "Bearer <token>")
-        const authHeader = req.headers.authorization;
-        if (!authHeader) {
-            return res.status(401).json({ status: 'error', message: 'No enviaste el token de autenticación' });
+        // Sacamos el token directo de las cookies leídas por cookie-parser
+        const token = req.cookies.adminToken;
+
+        if (!token) {
+            return res.status(401).json({ status: 'error', message: 'No autenticado' });
         }
 
-        const token = authHeader.split(' ')[1];
-
-        // 2. Verificar que el token sea válido y no haya sido alterado
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // 3. Verificar que sea ADMIN
         if (decoded.role !== 'ADMIN') {
-            return res.status(403).json({ status: 'error', message: 'Acceso denegado: No sos Administrador' });
+            return res.status(403).json({ status: 'error', message: 'Acceso denegado' });
         }
 
-        // 4. Todo OK, lo dejamos pasar a la ruta
         req.user = decoded;
         next();
     } catch (error) {
         return res.status(401).json({ status: 'error', message: 'Token inválido o expirado' });
     }
 };
+
+// export const verifyAdmin = (req, res, next) => {
+//     try {
+//         // 1. Sacar el token del header (formato "Bearer <token>")
+//         const authHeader = req.headers.authorization;
+//         if (!authHeader) {
+//             return res.status(401).json({ status: 'error', message: 'No enviaste el token de autenticación' });
+//         }
+
+//         const token = authHeader.split(' ')[1];
+
+//         // 2. Verificar que el token sea válido y no haya sido alterado
+//         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+//         // 3. Verificar que sea ADMIN
+//         if (decoded.role !== 'ADMIN') {
+//             return res.status(403).json({ status: 'error', message: 'Acceso denegado: No sos Administrador' });
+//         }
+
+//         // 4. Todo OK, lo dejamos pasar a la ruta
+//         req.user = decoded;
+//         next();
+//     } catch (error) {
+//         return res.status(401).json({ status: 'error', message: 'Token inválido o expirado' });
+//     }
+// };

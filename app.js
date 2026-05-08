@@ -7,6 +7,7 @@ import stadiumRouter from './src/routes/StadiumRouter.js';
 import matchRouter from './src/routes/MatchRouter.js';
 import standingsRouter from './src/routes/StandingsRouter.js'
 import authRouter from './src/routes/AuthRouter.js';
+import cookieParser from 'cookie-parser';
 // 1. Cargar variables de entorno SIEMPRE al principio
 dotenv.config();
 
@@ -17,10 +18,14 @@ connectDB();
 const app = express();
 
 // 4. Middlewares globales
-app.use(cors()); // Permite que tu frontend de Vite se conecte sin errores de CORS
+ // Permite que tu frontend de Vite se conecte sin errores de CORS
+app.use(cors({
+    origin: 'http://localhost:5173', // Tenés que poner la URL EXACTA de tu frontend (no sirve usar '*')
+    credentials: true // Permite que el backend acepte cookies
+}));
 app.use(express.json()); // Permite recibir JSON en el req.body
 app.use(express.urlencoded({ extended: true })); 
-
+app.use(cookieParser());
 // 5. Rutas (Acá vamos a ir montando los routers después)
 app.use('/api/teams', teamRouter);
 app.use('/api/stadiums', stadiumRouter);
