@@ -1,3 +1,4 @@
+import BracketService from '../services/BracketService.js';
 import * as MatchService from '../services/MatchService.js';
 import { z } from 'zod';
 
@@ -14,16 +15,27 @@ const createMatchSchema = z.object({
 });
 
 const updateMatchSchema = z.object({
+    // Estados y Resultados
     status: z.enum(['PENDING', 'PLAYING', 'FINISHED'], { error: "Estado inválido" }).optional(),
     homeScore: z.number().int().min(0, { error: "Los goles no pueden ser negativos" }).optional(),
     awayScore: z.number().int().min(0, { error: "Los goles no pueden ser negativos" }).optional(),
-    date: z.iso.datetime({ error: "La fecha debe ser ISO 8601" }).optional(),
-    stadium: objectIdSchema.optional(),
-    // NUEVAS VALIDACIONES
     homePenaltyScore: z.number().int().min(0).optional(),
     awayPenaltyScore: z.number().int().min(0).optional(),
+    
+    // Datos del Encuentro
     date: z.iso.datetime({ error: "La fecha debe ser ISO 8601" }).optional(),
-    stadium: objectIdSchema.optional()
+    stadium: objectIdSchema.optional(),
+    
+    // Equipos (Vital para poder asignarlos manualmente si hace falta)
+    homeTeam: objectIdSchema.optional(),
+    awayTeam: objectIdSchema.optional(),
+
+    // --- NUEVOS CAMPOS DEL BRACKET ENGINE ---
+    matchNumber: z.number().int().positive().optional(),
+    placeholderHome: z.string().optional(),
+    placeholderAway: z.string().optional(),
+    nextMatchWinner: z.number().int().positive().optional(),
+    nextMatchLoser: z.number().int().positive().optional()
 });
 
 export const getAllMatches = async (req, res) => {
@@ -63,7 +75,20 @@ export const updateMatch = async (req, res) => {
         const { id } = req.params;
         const validatedData = updateMatchSchema.parse(req.body);
         
+        // 1. Guardamos los cambios en la BD
         const updatedMatch = await MatchService.updateMatch(id, validatedData);
+        
+        // 2. ⚡ DISPARADOR DEL BRACKET ENGINE ⚡
+        // Verificamos si el admin envió el estado FINISHED y si es un partido de eliminatorias (del 73 al 104)
+        if (validatedData.status === 'FINISHED' && updatedMatch.matchNumber >= 73) {
+            // Ejecutamos el motor para que avance al ganador.
+            // El .catch evita que si falla algo acá, se rompa la respuesta al frontend.
+            BracketService.progressKnockoutWinner(updatedMatch).catch(err => {
+                console.error("[BracketEngine Error]: Hubo un problema al avanzar al equipo:", err);
+            });
+        }
+
+        // 3. Respondemos al frontend con éxito
         res.status(200).json({ status: 'success', data: updatedMatch });
     } catch (error) {
         if (error instanceof z.ZodError) {

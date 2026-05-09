@@ -12,6 +12,14 @@ class TeamDAO extends MongoDAO {
         return await this.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
     }
 
+    async getQualifiedByGroup(group, qualifiedTo) {
+        return await TeamModel.find({ 
+            group: group, 
+            qualifiedTo: qualifiedTo, 
+            position: { $ne: null } 
+        });
+    }
+
     
 }
 
