@@ -54,6 +54,21 @@ class MatchDAO extends MongoDAO {
         .populate(['homeTeam', 'awayTeam', 'stadium'])
         .sort({ date: 1 });
     }
+
+    /**
+     * Busca un partido específico por su número de eliminatoria (Ej: 89)
+     */
+    async getByMatchNumber(matchNumber) {
+        return await MatchModel.findOne({ matchNumber });
+    }
+
+    async getByPlaceholderHome(placeholder) {
+        return await MatchModel.findOne({ placeholderHome: placeholder });
+    }
+
+    async getByPlaceholderAway(placeholder) {
+        return await MatchModel.findOne({ placeholderAway: placeholder });
+    }
 }
 
 export default MatchDAO;
