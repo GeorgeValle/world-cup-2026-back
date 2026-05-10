@@ -12,11 +12,24 @@ export const login = async (email, password) => {
     if (!isMatch) throw new Error('Credenciales inválidas');
 
     // 3. Generar el Token (El pasaporte)
+    // ACÁ ESTÁ LA CLAVE: Guardamos id, email y role
+    const payload = { 
+        id: user._id.toString(), // Aseguramos que sea string
+        email: user.email, 
+        role: user.role 
+    };
+
     const token = jwt.sign(
-        { id: user._id, role: user.role },
+        payload,
         process.env.JWT_SECRET,
         { expiresIn: '24h' } // Expira en 1 día
     );
 
-    return { token, email: user.email, role: user.role };
+    // Devolvemos todo al Controller
+    return { 
+        token, 
+        id: user._id.toString(),
+        email: user.email, 
+        role: user.role 
+    };
 };
