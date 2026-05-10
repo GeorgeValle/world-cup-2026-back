@@ -2,12 +2,13 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './src/config/db.js';
+import cookieParser from 'cookie-parser';
 import teamRouter from './src/routes/TeamRouter.js';
 import stadiumRouter from './src/routes/StadiumRouter.js';
 import matchRouter from './src/routes/MatchRouter.js';
 import standingsRouter from './src/routes/StandingsRouter.js'
 import authRouter from './src/routes/AuthRouter.js';
-import cookieParser from 'cookie-parser';
+
 // 1. Cargar variables de entorno SIEMPRE al principio
 dotenv.config();
 

@@ -26,11 +26,40 @@ export const login = async (req, res) => {
 
 // En tu AuthController del backend:
 export const logout = (req, res) => {
-    res.clearCookie('adminToken');
-    res.status(200).json({ status: 'success', message: 'Sesión cerrada' });
+    // Borramos la cookie usando la misma configuración con la que fue creada
+    res.clearCookie('adminToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/' // Importante: asegura que se borre para toda la aplicación
+    });
+
+    return res.status(200).json({
+        status: 'success',
+        message: 'Sesión cerrada correctamente'
+    });
 };
 
-
+export const getMe = async (req, res) => {
+    try {
+        // El middleware verifyToken ya dejó los datos del usuario en req.user
+        // Solo devolvemos lo necesario para que Redux se reconstruya
+        return res.status(200).json({
+            status: 'success',
+            data: {
+                user: {
+                    email: req.user.email,
+                    role: req.user.role
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(401).json({
+            status: 'error',
+            message: 'Sesión no válida o expirada'
+        });
+    }
+};
 
 // export const login = async (req, res) => {
 //     try {
