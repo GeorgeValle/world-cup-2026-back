@@ -3,7 +3,6 @@ import { getAllStadiums, createStadium, getStadiumById, getStadiumByName } from 
 import { verifyAdmin } from '../middlewares/authMiddleware.js'; // <-- IMPORTAMOS EL MIDDLEWARE
 
 const router = Router();
-
 // --- RUTAS PÚBLICAS (Cualquiera consume) ---
 router.get('/', getAllStadiums);
 router.get('/:id', getStadiumById);
