@@ -8,7 +8,6 @@ const router = Router();
 router.get('/', getAllTeams);
 router.get('/:id', getTeamById);
 router.get('/name/:name', getTeamByName);
-
 // --- RUTAS PRIVADAS (Solo el Admin usa) ---
 router.post('/', verifyAdmin, createTeam);
 router.put('/:id', verifyAdmin, updateTeam); // <-- 2. Conectas la ruta PUT

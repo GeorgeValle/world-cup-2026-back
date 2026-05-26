@@ -8,7 +8,6 @@ const router = Router();
 router.get('/', getAllStadiums);
 router.get('/:id', getStadiumById);
 router.get('/:name', getStadiumByName);
-
 // --- RUTAS PRIVADAS (Solo el Admin usa) ---
 router.post('/',verifyAdmin, createStadium);
 

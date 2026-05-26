@@ -21,7 +21,7 @@ const app = express();
 // 4. Middlewares globales
  // Permite que tu frontend de Vite se conecte sin errores de CORS
 app.use(cors({
-    origin: 'http://localhost:5173', // Tenés que poner la URL EXACTA de tu frontend (no sirve usar '*')
+    origin: 'http://fixture-mundial-front.pages.dev', // Tenés que poner la URL EXACTA de tu frontend (no sirve usar '*')
     credentials: true // Permite que el backend acepte cookies
 }));
 app.use(express.json()); // Permite recibir JSON en el req.body

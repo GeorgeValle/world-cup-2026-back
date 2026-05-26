@@ -54,6 +54,7 @@ export const verifyAdmin = (req, res, next) => {
     }
 };
 
+
 // export const verifyAdmin = (req, res, next) => {
 //     try {
 //         // 1. Sacar el token del header (formato "Bearer <token>")
