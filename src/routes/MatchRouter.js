@@ -8,7 +8,6 @@ const router = Router();
 router.get('/', getAllMatches);
 router.get('/schedule/daily', getDailySchedule);
 router.get('/:id', getMatchById);
-
 // --- RUTAS PRIVADAS (Solo el Admin usa) ---
 router.post('/', verifyAdmin, createMatch);
 router.put('/:id', verifyAdmin, updateMatch);
