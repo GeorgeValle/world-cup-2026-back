@@ -3,7 +3,6 @@ import { getAllTeams, createTeam, getTeamById, getTeamByName, updateTeam } from 
 import { verifyAdmin } from '../middlewares/authMiddleware.js'; // <-- IMPORTAMOS EL MIDDLEWARE
 
 const router = Router();
-
 // --- RUTAS PÚBLICAS (Cualquiera consume) ---
 router.get('/', getAllTeams);
 router.get('/:id', getTeamById);

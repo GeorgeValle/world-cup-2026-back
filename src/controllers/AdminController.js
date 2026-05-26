@@ -1,6 +1,5 @@
 // src/controllers/AdminController.js
 import TransitionService from '../services/TransitionService.js';
-
 /**
  * Controlador para la transición manual de grupos a eliminatorias.
  * Se dispara desde el selector del panel administrativo.

@@ -4,7 +4,6 @@ import * as AdminController from '../controllers/AdminController.js';
 import { verifyAdmin } from '../middlewares/authMiddleware.js'; 
 
 const router = Router();
-
 // Aplicamos el escudo a todas las rutas de este archivo
 router.use(verifyAdmin);
 

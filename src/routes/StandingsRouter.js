@@ -3,7 +3,6 @@ import { getAllStandings, updateGroup } from '../controllers/StandingsController
 import { verifyAdmin } from '../middlewares/authMiddleware.js'; // <-- IMPORTAMOS EL MIDDLEWARE
 
 const router = Router();
-
 // --- RUTAS PÚBLICAS (Cualquiera consume) ---
 router.get('/', getAllStandings);      // Para la vista general
 // --- RUTAS PRIVADAS (Solo el Admin usa) ---

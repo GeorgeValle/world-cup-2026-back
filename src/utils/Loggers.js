@@ -14,6 +14,7 @@ const logger = winston.createLogger({
   ],
 });
 
+
 // Si no estamos en producción, también mostramos los logs por consola con colores
 if (process.env.NODE_ENV !== 'production') {
   logger.add(new winston.transports.Console({
