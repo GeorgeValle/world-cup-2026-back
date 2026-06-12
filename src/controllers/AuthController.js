@@ -6,11 +6,15 @@ export const login = async (req, res) => {
         // Obtenemos el token y los datos del usuario desde el Service
         const { token, role, email: userEmail } = await AuthService.login(email, password);
         
+
+        // Evaluamos el entorno usando la variable que pusiste en el .env
+        const isProduction = process.env.NODE_ENV === 'production';
+
         // Creamos la Cookie HttpOnly
         res.cookie('adminToken', token, {
             httpOnly: true, // INVISIBLE PARA JAVASCRIPT (Anti-XSS)
-            secure: process.env.NODE_ENV === 'production', // Solo viaja por HTTPS en producción
-            sameSite: 'strict', // Protege contra ataques CSRF
+            secure:   isProduction, // En local (HTTP) será false, en prod (HTTPS) será true//process.env.NODE_ENV === 'production', // Solo viaja por HTTPS en producción
+            sameSite: isProduction ? 'none' : 'lax', // 'none' requiere secure: true//'strict', // Protege contra ataques CSRF
             maxAge: 24 * 60 * 60 * 1000 // Expira en 24 horas (en milisegundos)
         });
 
@@ -29,8 +33,8 @@ export const logout = (req, res) => {
     // Borramos la cookie usando la misma configuración con la que fue creada
     res.clearCookie('adminToken', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: isProduction, //process.env.NODE_ENV === 'production',
+        sameSite: isProduction ? 'none' : 'lax',//'strict',
         path: '/' // Importante: asegura que se borre para toda la aplicación
     });
 
