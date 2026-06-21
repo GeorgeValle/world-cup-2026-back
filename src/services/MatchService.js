@@ -26,21 +26,26 @@ export const updateMatch = async (id, updateData) => {
     return await MatchDAO.update(id, updateData);
 };
 
-export const getDailySchedule = async (clientDateStr) => {
-    const targetDate = clientDateStr ? new Date(clientDateStr) : new Date();
+export const getDailySchedule = async ({ start, end } = {}) => {
+    if (!start || !end) {
+        throw new Error('Los parámetros start y end son obligatorios');
+    }
 
-    // Lógica de cálculo de tiempos (Negocio)
-    const startOfToday = new Date(targetDate);
-    startOfToday.setUTCHours(0, 0, 0, 0);
+    const startOfToday = new Date(start);
+    const endOfToday = new Date(end);
 
-    const endOfToday = new Date(targetDate);
-    endOfToday.setUTCHours(23, 59, 59, 999);
+    if (Number.isNaN(startOfToday.getTime()) || Number.isNaN(endOfToday.getTime())) {
+        throw new Error('Los parámetros start y end deben ser fechas ISO válidas');
+    }
 
-    // 1. Pedimos al DAO los partidos de hoy (Pasa-manos)
+    if (startOfToday >= endOfToday) {
+        throw new Error('El parámetro start debe ser anterior a end');
+    }
+
+    // 1. Pedimos al DAO los partidos dentro del rango local enviado por el frontend
     const todayMatches = await MatchDAO.getByDateRange(startOfToday, endOfToday);
 
-    // 2. Buscamos el próximo día con actividad
-    // Primero el DAO nos dice cuál es el siguiente partido
+    // 2. Buscamos el próximo partido después del rango consultado
     const nextMatch = await MatchDAO.getFirstAfter(endOfToday);
 
     let nextMatches = [];
@@ -49,14 +54,30 @@ export const getDailySchedule = async (clientDateStr) => {
     if (nextMatch) {
         const startOfNextDay = new Date(nextMatch.date);
         startOfNextDay.setUTCHours(0, 0, 0, 0);
-
+    
         const endOfNextDay = new Date(nextMatch.date);
         endOfNextDay.setUTCHours(23, 59, 59, 999);
-
-        // Volvemos a usar el método genérico del DAO para traer el bloque de ese día
-        nextMatches = await MatchDAO.getByDateRange(startOfNextDay, endOfNextDay);
-        nextDateLabel = startOfNextDay.toISOString();
+    
+        const nextDayMatches = await MatchDAO.getByDateRange(startOfNextDay, endOfNextDay);
+    
+        nextMatches = nextDayMatches.filter((match) => {
+            return new Date(match.date) > endOfToday;
+        });
+    
+        nextDateLabel = nextMatches.length > 0
+            ? new Date(nextMatches[0].date).toISOString()
+            : null;
     }
+    // if (nextMatch) {
+    //     const startOfNextDay = new Date(nextMatch.date);
+    //     startOfNextDay.setUTCHours(0, 0, 0, 0);
+
+    //     const endOfNextDay = new Date(nextMatch.date);
+    //     endOfNextDay.setUTCHours(23, 59, 59, 999);
+
+    //     nextMatches = await MatchDAO.getByDateRange(startOfNextDay, endOfNextDay);
+    //     nextDateLabel = startOfNextDay.toISOString();
+    // }
 
     return {
         today: todayMatches,
@@ -64,3 +85,42 @@ export const getDailySchedule = async (clientDateStr) => {
         nextDate: nextDateLabel
     };
 };
+
+// export const getDailySchedule = async (clientDateStr) => {
+//     const targetDate = clientDateStr ? new Date(clientDateStr) : new Date();
+
+//     // Lógica de cálculo de tiempos (Negocio)
+//     const startOfToday = new Date(targetDate);
+//     startOfToday.setUTCHours(0, 0, 0, 0);
+
+//     const endOfToday = new Date(targetDate);
+//     endOfToday.setUTCHours(23, 59, 59, 999);
+
+//     // 1. Pedimos al DAO los partidos de hoy (Pasa-manos)
+//     const todayMatches = await MatchDAO.getByDateRange(startOfToday, endOfToday);
+
+//     // 2. Buscamos el próximo día con actividad
+//     // Primero el DAO nos dice cuál es el siguiente partido
+//     const nextMatch = await MatchDAO.getFirstAfter(endOfToday);
+
+//     let nextMatches = [];
+//     let nextDateLabel = null;
+
+//     if (nextMatch) {
+//         const startOfNextDay = new Date(nextMatch.date);
+//         startOfNextDay.setUTCHours(0, 0, 0, 0);
+
+//         const endOfNextDay = new Date(nextMatch.date);
+//         endOfNextDay.setUTCHours(23, 59, 59, 999);
+
+//         // Volvemos a usar el método genérico del DAO para traer el bloque de ese día
+//         nextMatches = await MatchDAO.getByDateRange(startOfNextDay, endOfNextDay);
+//         nextDateLabel = startOfNextDay.toISOString();
+//     }
+
+//     return {
+//         today: todayMatches,
+//         next: nextMatches,
+//         nextDate: nextDateLabel
+//     };
+// };

@@ -100,14 +100,27 @@ export const updateMatch = async (req, res) => {
 
 export const getDailySchedule = async (req, res) => {
     try {
-        // Capturamos el query param opcional (ej: /api/matches/schedule/daily?date=2026-06-11)
-        const { date } = req.query; 
-        
-        const schedule = await MatchService.getDailySchedule(date);
-        
+        const { start, end } = req.query;
+
+        const schedule = await MatchService.getDailySchedule({ start, end });
+
         res.status(200).json({ status: 'success', data: schedule });
     } catch (error) {
-        console.error("❌ Error en el catch:", error); //
+        console.error("❌ Error en getDailySchedule:", error);
         res.status(500).json({ status: 'error', message: error.message });
     }
 };
+
+// export const getDailySchedule = async (req, res) => {
+//     try {
+//         // Capturamos el query param opcional (ej: /api/matches/schedule/daily?date=2026-06-11)
+//         const { date } = req.query; 
+        
+//         const schedule = await MatchService.getDailySchedule(date);
+        
+//         res.status(200).json({ status: 'success', data: schedule });
+//     } catch (error) {
+//         console.error("❌ Error en el catch:", error); //
+//         res.status(500).json({ status: 'error', message: error.message });
+//     }
+// };
