@@ -8,7 +8,7 @@ import stadiumRouter from './src/routes/StadiumRouter.js';
 import matchRouter from './src/routes/MatchRouter.js';
 import standingsRouter from './src/routes/StandingsRouter.js'
 import authRouter from './src/routes/AuthRouter.js';
-
+import adminRouter from './src/routes/adminRoutes.js';
 // 1. Cargar variables de entorno SIEMPRE al principio
 dotenv.config();
 
@@ -36,6 +36,7 @@ app.use('/api/stadiums', stadiumRouter);
 app.use('/api/matches', matchRouter);
 app.use('/api/standings', standingsRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
 app.get('/', (req, res) => {
     res.json({ message: 'API Fixture Mundial 2026 funcionando 🏆' });
 });
@@ -45,7 +46,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(cors());
+//app.use(cors());
 // Middleware para rutas no encontradas (404)
 app.use((req, res) => {
     res.status(404).json({ error: 'Ruta no encontrada' });
