@@ -21,7 +21,7 @@ export default class TransitionService {
             const matchAsHome = await MatchDAO.getByPlaceholderHome(placeholder);
             if (matchAsHome) {
                 // Usamos updateMatch del DAO para reescribir el equipo
-                await MatchDAO.updateMatch(matchAsHome._id, { homeTeam: team._id });
+                await MatchDAO.update(matchAsHome._id, { homeTeam: team._id });
                 console.log(`[TransitionEngine] ${team.name} asignado como Local al partido ${matchAsHome.matchNumber}`);
                 continue; // Un equipo no puede ser local y visitante a la vez
             }
@@ -29,7 +29,7 @@ export default class TransitionService {
             // 3. Si no era local, buscamos el partido que lo espera como VISITANTE
             const matchAsAway = await MatchDAO.getByPlaceholderAway(placeholder);
             if (matchAsAway) {
-                await MatchDAO.updateMatch(matchAsAway._id, { awayTeam: team._id });
+                await MatchDAO.update(matchAsAway._id, { awayTeam: team._id });
                 console.log(`[TransitionEngine] ${team.name} asignado como Visitante al partido ${matchAsAway.matchNumber}`);
             }
         }
