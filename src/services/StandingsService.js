@@ -41,7 +41,14 @@ const calculateStats = (teams, matches) => {
         }
     });
 
-    return Object.values(statsMap);
+    const standings = Object.values(statsMap);
+
+    standings.forEach((stat) => {
+        stat.dif = stat.gf - stat.gc;
+    });
+
+    return standings;
+    //return Object.values(statsMap);
 };
 
 // ==========================================
