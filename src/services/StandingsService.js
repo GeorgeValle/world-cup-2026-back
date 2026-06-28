@@ -52,8 +52,107 @@ const calculateStats = (teams, matches) => {
 };
 
 // ==========================================
+// Función Auxiliar para comparar equipos
+// ==========================================
+const getNumberOrNull = (value) => {
+    if (value === null || value === undefined || value === '') return null;
+
+    const numberValue = Number(value);
+    return Number.isFinite(numberValue) ? numberValue : null;
+};
+
+const compareStandingsRows = (a, b) => {
+    // 1° Criterio: Puntos
+    if (b.pts !== a.pts) return b.pts - a.pts;
+
+    // 2° Criterio: Diferencia de goles
+    if (b.dif !== a.dif) return b.dif - a.dif;
+
+    // 3° Criterio: Goles a favor
+    if (b.gf !== a.gf) return b.gf - a.gf;
+
+    // 4° Criterio: PCD / Fair Play de fase de grupos
+    // Formato tipo FIFA: -1 es mejor que -3, por eso mayor es mejor.
+    // Solo se usa si ambos equipos tienen el dato cargado.
+    const fairPlayA = getNumberOrNull(a.team?.groupFairPlayPoints);
+    const fairPlayB = getNumberOrNull(b.team?.groupFairPlayPoints);
+
+    if (fairPlayA !== null && fairPlayB !== null && fairPlayB !== fairPlayA) {
+        return fairPlayB - fairPlayA;
+    }
+
+    // 5° Criterio: Ranking FIFA
+    // Menor número es mejor: ranking 1 le gana a ranking 12.
+    const rankingA = getNumberOrNull(a.team?.fifaRanking);
+    const rankingB = getNumberOrNull(b.team?.fifaRanking);
+
+    if (rankingA !== null && rankingB !== null && rankingA !== rankingB) {
+        return rankingA - rankingB;
+    }
+
+    // Si solo uno tiene ranking, gana el que sí tiene dato.
+    if (rankingA !== null && rankingB === null) return -1;
+    if (rankingA === null && rankingB !== null) return 1;
+
+    // Fallback estable para que el sort no quede impredecible.
+    return String(a.team?.name ?? '').localeCompare(String(b.team?.name ?? ''), 'es', {
+        sensitivity: 'base',
+    });
+};
+
+// ==========================================
 // POST: Actualizar un grupo específico
 // ==========================================
+// export const updateGroupStandings = async (group) => {
+//     console.log(`[StandingsEngine] Iniciando recálculo para el Grupo ${group}`);
+
+//     // Obtener todos los partidos finalizados del grupo
+//     const matches = await MatchDAO.getByGroupAndStatus(group, 'FINISHED');
+//     const isGroupClosed = matches.length === 6;
+
+//     // Obtener los equipos del grupo
+//     const teams = await TeamDAO.getByGroup(group);
+
+//     // Calcular tabla
+//     const standings = calculateStats(teams, matches);
+
+//     // Ordenar tabla
+//     standings.sort((a, b) => {
+//         // 1° Criterio: Puntos (Mayor es mejor)
+//         if (b.pts !== a.pts) return b.pts - a.pts;
+//         // 2° Criterio: Diferencia de goles (Mayor es mejor)
+//         if (b.dif !== a.dif) return b.dif - a.dif;
+//         // 3° Criterio: Goles a favor (Mayor es mejor)
+//         return b.gf - a.gf;
+//     });
+
+//     // Actualizar Base de Datos
+//     for (let i = 0; i < standings.length; i++) {
+//         const teamStats = standings[i];
+//         const teamId = teamStats.team._id;
+        
+//         let newQualifiedTo = null;
+
+//         if (isGroupClosed) {
+//             if (i === 0 || i === 1) newQualifiedTo = 'ROUND_OF_32'; // 1ro y 2do
+//             else if (i === 2) newQualifiedTo = null;                // 3ro en espera
+//             else newQualifiedTo = 'ELIMINATED';                     // 4to
+//         }
+
+//         const currentTeam = await TeamDAO.getById(teamId);
+//         const finalQualifiedTo = currentTeam.qualifiedTo !== null && !isGroupClosed 
+//             ? currentTeam.qualifiedTo 
+//             : newQualifiedTo;
+
+//         // ACÁ ESTÁ EL ARREGLO DE updateTeam a update
+//         await TeamDAO.update(teamId, {
+//             position: i + 1,
+//             qualifiedTo: finalQualifiedTo
+//         });
+//     }
+
+//     return standings;
+// };
 export const updateGroupStandings = async (group) => {
     console.log(`[StandingsEngine] Iniciando recálculo para el Grupo ${group}`);
 
@@ -67,18 +166,14 @@ export const updateGroupStandings = async (group) => {
     // Calcular tabla
     const standings = calculateStats(teams, matches);
 
-    // Ordenar tabla
-    standings.sort((a, b) => {
-        if (b.pts !== a.pts) return b.pts - a.pts;
-        if (b.dif !== a.dif) return b.dif - a.dif;
-        return b.gf - a.gf;
-    });
+    // Ordenar tabla con criterios oficiales de desempate
+    standings.sort(compareStandingsRows);
 
     // Actualizar Base de Datos
     for (let i = 0; i < standings.length; i++) {
         const teamStats = standings[i];
         const teamId = teamStats.team._id;
-        
+
         let newQualifiedTo = null;
 
         if (isGroupClosed) {
@@ -88,11 +183,10 @@ export const updateGroupStandings = async (group) => {
         }
 
         const currentTeam = await TeamDAO.getById(teamId);
-        const finalQualifiedTo = currentTeam.qualifiedTo !== null && !isGroupClosed 
-            ? currentTeam.qualifiedTo 
+        const finalQualifiedTo = currentTeam.qualifiedTo !== null && !isGroupClosed
+            ? currentTeam.qualifiedTo
             : newQualifiedTo;
 
-        // ACÁ ESTÁ EL ARREGLO DE updateTeam a update
         await TeamDAO.update(teamId, {
             position: i + 1,
             qualifiedTo: finalQualifiedTo
@@ -105,10 +199,43 @@ export const updateGroupStandings = async (group) => {
 // ==========================================
 // GET: Obtener todos los grupos para el Dashboard
 // ==========================================
+// export const getAllGroupsStandings = async () => {
+//     const allTeams = await TeamDAO.getAll();
+//     const allMatches = await MatchDAO.getAll();
+//     const finishedGroupMatches = allMatches.filter(m => 
+//         m.stage && m.stage.startsWith('GRUPO') && m.status === 'FINISHED'
+//     );
+
+//     const allStats = calculateStats(allTeams, finishedGroupMatches);
+
+//     // Agrupar por letra
+//     const grouped = {};
+//     allStats.forEach(stat => {
+//         const letter = stat.team.group;
+//         if (!grouped[letter]) grouped[letter] = [];
+//         grouped[letter].push(stat);
+//     });
+
+//     // Ordenar equipos dentro de cada grupo y devolver array final
+//     return Object.keys(grouped).sort().map(letter => {
+//         const sorted = grouped[letter].sort((a, b) => {
+//             if (b.pts !== a.pts) return b.pts - a.pts;
+//             if (b.dif !== a.dif) return b.dif - a.dif;
+//             return b.gf - a.gf;
+//         });
+
+//         return {
+//             group: letter,
+//             teams: sorted
+//         };
+//     });
+// };
+
 export const getAllGroupsStandings = async () => {
     const allTeams = await TeamDAO.getAll();
     const allMatches = await MatchDAO.getAll();
-    const finishedGroupMatches = allMatches.filter(m => 
+
+    const finishedGroupMatches = allMatches.filter(m =>
         m.stage && m.stage.startsWith('GRUPO') && m.status === 'FINISHED'
     );
 
@@ -124,11 +251,7 @@ export const getAllGroupsStandings = async () => {
 
     // Ordenar equipos dentro de cada grupo y devolver array final
     return Object.keys(grouped).sort().map(letter => {
-        const sorted = grouped[letter].sort((a, b) => {
-            if (b.pts !== a.pts) return b.pts - a.pts;
-            if (b.dif !== a.dif) return b.dif - a.dif;
-            return b.gf - a.gf;
-        });
+        const sorted = grouped[letter].sort(compareStandingsRows);
 
         return {
             group: letter,
@@ -136,3 +259,4 @@ export const getAllGroupsStandings = async () => {
         };
     });
 };
+
