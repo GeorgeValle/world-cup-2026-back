@@ -51,7 +51,8 @@ export default class BracketService {
             // Si el partido era la final, el ganador sigue en estado "FINAL" (o podés crear un estado "CHAMPION" en tu modelo)
             // Si no es la final, actualizamos a la siguiente ronda
             if (nextRoundValue) {
-                await TeamDAO.updateTeam(winnerId, { qualifiedTo: nextRoundValue });
+                //await TeamDAO.updateTeam(winnerId, { qualifiedTo: nextRoundValue });
+                await TeamDAO.update(winnerId, { qualifiedTo: nextRoundValue });
                 console.log(`[BracketEngine] Equipo ${winnerId} clasificado a ${nextRoundValue}`);
             }
         }
@@ -59,7 +60,8 @@ export default class BracketService {
         if (loserId) {
             // Si pierden en semis, van por el 3er puesto. Si no, quedan eliminados.
             const loserStatus = finishedMatch.stage === "SEMIFINAL" ? "THIRD_PLACE_MATCH" : "ELIMINATED";
-            await TeamDAO.updateTeam(loserId, { qualifiedTo: loserStatus });
+            //await TeamDAO.updateTeam(loserId, { qualifiedTo: loserStatus });
+            await TeamDAO.update(loserId, { qualifiedTo: loserStatus });
             console.log(`[BracketEngine] Equipo ${loserId} ahora está ${loserStatus}`);
         }
         // =========================================================
@@ -76,7 +78,8 @@ export default class BracketService {
                 else if (nextMatch.placeholderAway === expectedPlaceholder) updateData.awayTeam = winnerId;
 
                 if (Object.keys(updateData).length > 0) {
-                    await MatchDAO.updateMatch(nextMatch._id, updateData);
+                    //await MatchDAO.updateMatch(nextMatch._id, updateData);
+                    await MatchDAO.update(nextMatch._id, updateData);
                     console.log(`[BracketEngine] Ganador del partido ${finishedMatch.matchNumber} movido al partido ${nextMatch.matchNumber}`);
                 }
             }
