@@ -43,6 +43,14 @@ const teamSchema = new Schema({
             'ELIMINATED'
           ],
         uppercase: true
+    },
+    groupFairPlayPoints: { 
+        type: Number, 
+        default: null 
+    },
+    fifaRanking: { 
+        type: Number, 
+        default: null 
     }
 }, {
     timestamps: true
